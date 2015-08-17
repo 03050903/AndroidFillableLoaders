@@ -223,6 +223,7 @@ public class FillableLoader extends View {
         changeState(State.FILL_STARTED);
       }
 
+      //当前执行时间/总执行时间 的占比 来确定 path 路径顶部线条的高度
       float fillPhase =
           MathUtil.constrain(0, 1, (elapsedTime - strokeDrawingDuration) * 1f / fillDuration);
 
