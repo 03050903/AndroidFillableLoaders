@@ -24,10 +24,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import butterknife.Bind;
-import butterknife.ButterKnife;
+
 import com.github.jorgecastillo.clippingtransforms.WavesClippingTransform;
 import com.github.jorgecastillo.listener.OnStateChangeListener;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * @author jorge
@@ -85,20 +87,20 @@ public class FillableLoaderPage extends Fragment implements OnStateChangeListene
 
   private void setupFillableLoader(int pageNum) {
     if (pageNum == 3) {
-      int viewSize = getResources().getDimensionPixelSize(R.dimen.fourthSampleViewSize);
+      int viewSize = getResources().getDimensionPixelSize(R.dimen.cc_size);
       FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(viewSize, viewSize);
       params.gravity = Gravity.CENTER;
 
       FillableLoaderBuilder loaderBuilder = new FillableLoaderBuilder();
-      fillableLoader = loaderBuilder.parentView((FrameLayout) rootView)
-          .svgPath(Paths.JOB_AND_TALENT)
-          .layoutParams(params)
-          .originalDimensions(970, 970)
-          .strokeColor(Color.parseColor("#1c9ade"))
-          .fillColor(Color.parseColor("#1c9ade"))
-          .strokeDrawingDuration(2000)
-          .clippingTransform(new WavesClippingTransform())
-          .fillDuration(10000)
+      fillableLoader = loaderBuilder.parentView((FrameLayout) rootView)//parent视图
+          .svgPath(Paths.CC_LOGO)//path 路径  GIMP生成
+          .layoutParams(params) //显示大小
+          .originalDimensions(143, 131)//原始大小 必须参数
+          .strokeColor(Color.parseColor("#1c9ade"))//边界颜色
+          .fillColor(Color.parseColor("#1c9ade")) //填充颜色
+          .strokeDrawingDuration(2000) //边界绘制颜色
+          .clippingTransform(new WavesClippingTransform()) //填充样式
+          .fillDuration(10000) //填充时间
           .build();
     } else {
       fillableLoader.setSvgPath(pageNum == 0 ? Paths.INDOMINUS_REX : pageNum == 1 ? Paths.RONALDO
@@ -113,13 +115,13 @@ public class FillableLoaderPage extends Fragment implements OnStateChangeListene
   }
 
   @Override public void reset() {
-    fillableLoader.reset();
+    fillableLoader.reset();//重绘
 
     //We wait a little bit to start the animation, to not contaminate the drawing effect
     //by the activity creation animation.
     fillableLoader.postDelayed(new Runnable() {
       @Override public void run() {
-        fillableLoader.start();
+        fillableLoader.start();//开始绘制
       }
     }, 250);
   }

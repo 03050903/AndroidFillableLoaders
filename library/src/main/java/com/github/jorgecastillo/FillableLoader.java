@@ -129,9 +129,12 @@ public class FillableLoader extends View {
     initFillPaint();
 
     animInterpolator = new DecelerateInterpolator();
-    setLayerType(LAYER_TYPE_SOFTWARE, null);
+    setLayerType(LAYER_TYPE_SOFTWARE, null);//软件加速 why ?
   }
 
+  /**
+   * 边界画笔
+   */
   private void initDashPaint() {
     dashPaint = new Paint();
     dashPaint.setStyle(Paint.Style.STROKE);
@@ -140,6 +143,9 @@ public class FillableLoader extends View {
     dashPaint.setColor(strokeColor);
   }
 
+  /**
+   * 填充画笔
+   */
   private void initFillPaint() {
     fillPaint = new Paint();
     fillPaint.setAntiAlias(true);
@@ -147,13 +153,19 @@ public class FillableLoader extends View {
     fillPaint.setColor(fillColor);
   }
 
+  /**
+   * 开始绘制
+   */
   public void start() {
     checkRequirements();
-    initialTime = System.currentTimeMillis();
+    initialTime = System.currentTimeMillis();//当前时间
     changeState(State.TRACE_STARTED);
-    ViewCompat.postInvalidateOnAnimation(this);
+    ViewCompat.postInvalidateOnAnimation(this);//初始该view的下一帧开始刷新  区别于  invalidate()刷新当前帧 调用onDraw方法
   }
 
+  /**
+   * 检查必须的参数是否存在
+   */
   private void checkRequirements() {
     checkOriginalDimensions();
     checkPath();
@@ -194,19 +206,19 @@ public class FillableLoader extends View {
 
   @Override protected void onDraw(Canvas canvas) {
     super.onDraw(canvas);
-    if (!hasToDraw()) {
+    if (!hasToDraw()) {  //只有在绘制状态 没完成 时才刷新
       return;
     }
 
     long elapsedTime = System.currentTimeMillis() - initialTime;
 
-    float phase = MathUtil.constrain(0, 1, elapsedTime * 1f / strokeDrawingDuration);
+    float phase = MathUtil.constrain(0, 1, elapsedTime * 1f / strokeDrawingDuration);//获取现在执行到的位置 fraction
     float distance = animInterpolator.getInterpolation(phase) * pathData.length;
 
     dashPaint.setPathEffect(getDashPathForDistance(distance));
     canvas.drawPath(pathData.path, dashPaint);
 
-    if (isStrokeTotallyDrawn(elapsedTime)) {
+    if (isStrokeTotallyDrawn(elapsedTime)) {//外边框路径绘制完成
       if (drawingState < State.FILL_STARTED) {
         changeState(State.FILL_STARTED);
       }
@@ -218,7 +230,7 @@ public class FillableLoader extends View {
       canvas.drawPath(pathData.path, fillPaint);
     }
 
-    if (hasToKeepDrawing(elapsedTime)) {
+    if (hasToKeepDrawing(elapsedTime)) {//没画完 继续画
       ViewCompat.postInvalidateOnAnimation(this);
     } else {
       changeState(State.FINISHED);
@@ -230,6 +242,11 @@ public class FillableLoader extends View {
   }
 
   private PathEffect getDashPathForDistance(float distance) {
+    /**
+     * distance是当前绘制的点位置
+     * pathData.length 为路径的总长度
+     * 0 表示dash的Offset为0 相当于画直线
+     */
     return new DashPathEffect(new float[] { distance, pathData.length }, 0);
   }
 
@@ -246,12 +263,12 @@ public class FillableLoader extends View {
   }
 
   private void changeState(int state) {
-    if (drawingState == state) {
+    if (drawingState == state) { //状态没变,直接返回
       return;
     }
 
     drawingState = state;
-    if (stateChangeListener != null) {
+    if (stateChangeListener != null) { //状态变化的监听
       stateChangeListener.onStateChange(state);
     }
   }
@@ -294,6 +311,10 @@ public class FillableLoader extends View {
     buildPathData();
   }
 
+  /**
+   * onDraw执行会先执行onSizeChanged,设置PathData数据
+   * 根据PathMeasure获取路径长度
+   */
   private void buildPathData() {
     SvgPathParser parser = getPathParser();
     pathData = new PathData();
@@ -303,10 +324,11 @@ public class FillableLoader extends View {
       pathData.path = new Path();
     }
 
+    //通过 PathMeasure获取路径轮廓的长度等参数
     PathMeasure pm = new PathMeasure(pathData.path, true);
     while (true) {
       pathData.length = Math.max(pathData.length, pm.getLength());
-      if (!pm.nextContour()) {
+      if (!pm.nextContour()) {//移动到下一个轮廓
         break;
       }
     }

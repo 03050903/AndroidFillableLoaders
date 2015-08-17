@@ -24,6 +24,7 @@ import java.text.ParseException;
  * from romainnurik Muzei implementation to avoid rewritting .
  *
  * @author romainnurik
+ * SVG的path路径转换成SDK能识别的Path api
  */
 public class SvgPathParser {
   private static final int TOKEN_ABSOLUTE_COMMAND = 1;

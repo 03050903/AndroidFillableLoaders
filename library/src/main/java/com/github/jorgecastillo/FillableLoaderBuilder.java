@@ -92,6 +92,10 @@ public class FillableLoaderBuilder {
     return this;
   }
 
+  /**
+   * 典型的build模式创建方法
+   * @return
+   */
   public FillableLoader build() {
     Resources res = parent.getContext().getResources();
     strokeColor = strokeColor == -1 ? res.getColor(R.color.strokeColor) : strokeColor;
